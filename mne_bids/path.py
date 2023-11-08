@@ -1891,6 +1891,7 @@ def get_entity_vals(
     ignore_splits=None,
     ignore_descriptions=None,
     ignore_modalities=None,
+    ignore_recordings=None,
     ignore_datatypes=None,
     ignore_dirs=("derivatives", "sourcedata"),
     with_key=False,
@@ -2004,6 +2005,7 @@ def get_entity_vals(
         "split",
         "description",
         "suffix",
+        "recording",
     )
     entities_abbr = (
         "sub",
@@ -2016,6 +2018,7 @@ def get_entity_vals(
         "split",
         "desc",
         "suffix",
+        "rec",
     )
     entity_long_abbr_map = dict(zip(entities, entities_abbr))
 
@@ -2034,6 +2037,7 @@ def get_entity_vals(
     ignore_splits = _ensure_tuple(ignore_splits)
     ignore_descriptions = _ensure_tuple(ignore_descriptions)
     ignore_modalities = _ensure_tuple(ignore_modalities)
+    ignore_recordings = _ensure_tuple(ignore_recordings)
 
     ignore_dirs = _ensure_tuple(ignore_dirs)
     existing_ignore_dirs = [
@@ -2089,6 +2093,10 @@ def get_entity_vals(
             continue
         if ignore_modalities and any(
             [f"_{k}" in filename.stem for k in ignore_modalities]
+        ):
+            continue
+        if ignore_recordings and any(
+                [f"_rec-{a}_" in filename.stem for a in ignore_recordings]
         ):
             continue
 

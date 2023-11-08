@@ -622,7 +622,7 @@ def test_handle_scans_reading_brainvision(tmp_path):
     """Test stability of BrainVision's different file extensions."""
     test_scan_eeg = OrderedDict(
         [
-            ("filename", [Path("eeg/sub-01_ses-eeg_task-rest_eeg.eeg")]),
+            ("filename", [Path("eeg/sub-01_ses-eeg_task-rest_eeg_rec-prelim.eeg")]),
             ("acq_time", ["2000-01-01T12:00:00.000000Z"]),
         ]
     )
