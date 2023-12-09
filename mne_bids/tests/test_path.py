@@ -34,6 +34,7 @@ from mne_bids.path import (
     search_folder_for_text,
     get_bids_path_from_fname,
     find_matching_paths,
+    _mkdir_p,
 )
 from mne_bids.config import ALLOWED_PATH_ENTITIES_SHORT
 
@@ -50,6 +51,19 @@ _bids_path = BIDSPath(
     subject=subject_id, session=session_id, run=run, acquisition=acq, task=task
 )
 
+@pytest.fixture
+def test_directory(tmpdir):
+    # Create a temporary directory for testing
+    return str(tmpdir.mkdir("test_dir"))
+
+def test_mkdir_p(test_directory):
+    # Test that _mkdir_p creates nested directories when they don't exist
+    path = os.path.join(test_directory, "new_folder1", "new_folder2")
+    assert not os.path.exists(path)
+
+    _mkdir_p(path)
+
+    assert os.path.exists(path)
 
 @pytest.fixture(scope="session")
 def return_bids_test_dir(tmp_path_factory):

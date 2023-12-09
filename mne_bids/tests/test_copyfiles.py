@@ -5,10 +5,13 @@
 #
 # License: BSD-3-Clause
 import os.path as op
-import datetime
+from datetime import datetime
+import re
 from pathlib import Path
 
 import pytest
+from unittest.mock import patch
+import tempfile
 
 import mne
 from mne.datasets import testing
@@ -22,10 +25,45 @@ from mne_bids.copyfiles import (
     copyfile_eeglab,
     copyfile_kit,
     copyfile_bti,
+    _replace_file,
+    _anonymize_brainvision,
 )
+
+import os
 
 testing_path = testing.data_path(download=False)
 base_path = op.join(op.dirname(mne.__file__), "io")
+
+@pytest.fixture
+def test_file(tmp_path):
+    # Create a temporary file with some content
+    file_path = tmp_path / "test_file.txt"
+    with open(file_path, "w") as f:
+        f.write("Line 1\nLine 2\nLine 3\n")
+    return file_path
+
+def test_replace_file(test_file):
+    # Define the pattern to match and the replacement
+    pattern = r"^Line \d$"
+    replace = "Modified Line"
+
+    with open(test_file, "r") as f:
+        actual_content = f.readlines()
+        print("Actual Content:", actual_content)
+
+    assert f.closed
+
+    # Call the _replace_file function
+    _replace_file(test_file, pattern, replace)
+
+    # Check if the file content is modified as expected
+    with open(test_file, "r") as f:
+        modified_content = f.readlines()
+        print("Modified Content:", modified_content)
+
+    assert f.closed
+
+    assert modified_content == ['Modified Line\n', 'Modified Line\n', 'Modified Line\n']
 
 
 @testing.requires_testing_data

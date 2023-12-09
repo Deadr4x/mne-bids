@@ -254,11 +254,12 @@ def copyfile_kit(src, dest, subject_id, session_id, task, run, _init_kwargs):
 def _replace_file(fname, pattern, replace):
     """Overwrite file, replacing end of lines matching pattern with replace."""
     new_content = []
-    for line in open(fname, "r"):
-        match = re.match(pattern, line)
-        if match:
-            line = match.group()[: -len(replace)] + replace + "\n"
-        new_content.append(line)
+    with open(fname, "r", encoding="utf-8") as fin:
+        for line in fin:
+            match = re.match(pattern, line)
+            if match:
+                line = match.group()[: -len(replace)] + replace + "\n"
+            new_content.append(line)
 
     with open(fname, "w", encoding="utf-8") as fout:
         fout.writelines(new_content)

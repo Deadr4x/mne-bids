@@ -14,6 +14,7 @@ import pytest
 import shutil as sh
 import numpy as np
 from numpy.testing import assert_almost_equal
+from unittest.mock import MagicMock
 
 import mne
 from mne.datasets import testing
@@ -33,6 +34,7 @@ from mne_bids.read import (
     get_head_mri_trans,
     _handle_events_reading,
     _handle_scans_reading,
+    _verbose_list_index,
 )
 from mne_bids.tsv_handler import _to_tsv, _from_tsv
 from mne_bids.utils import _write_json
@@ -71,6 +73,32 @@ warning_str = dict(
     maxshield="ignore:.*Internal Active Shielding:RuntimeWarning:mne",
 )
 
+def test_verbose_list_index():
+    # Test case 1: Value is present in the list
+    lst = ['apple', 'banana', 'cherry']
+    val = 'banana'
+    result = _verbose_list_index(lst, val)
+    assert result == 1
+
+    # Test case 2: Value is not present in the list
+    val = 'grape'
+    with pytest.raises(ValueError, match=".*Did you mean one of.*"):
+        _verbose_list_index(lst, val)
+
+    # Test case 3: Value is not present in the list, allow_all=True
+    val = MagicMock()
+    with pytest.raises(ValueError, match=".*Did you mean one of.*"):
+        _verbose_list_index(lst, val, allow_all=True)
+
+    # Test case 4: Value is a pathlib.Path instance
+    #lst = [MagicMock(), MagicMock(), MagicMock()]
+    #val = MagicMock()
+    #with pytest.raises(ValueError, match=".*Did you mean one of.*"):
+    #    _verbose_list_index(lst, val)
+    path_instance = Path(mne_bids_root)
+    lst = [Path(tiny_bids_root), Path(tiny_bids_root), Path(tiny_bids_root)]
+    with pytest.raises(ValueError, match=".*Did you mean one of.*"):
+        _verbose_list_index(lst, path_instance)
 
 def _wrap_read_raw(read_raw):
     def fn(fname, *args, **kwargs):

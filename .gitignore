@@ -33,3 +33,8 @@ cover
 .vscode/
 
 __pycache__
+
+examples/test2.py
+mne_bids/tests/data/tiny_bids/sub-01/ses-eeg/eeg/sub-01_ses-eeg_rec-prelim.edf
+mne_bids/tests/data/tiny_bids/sub-01/ses-eeg/eeg/sub-01_ses-eeg_rec-prelim.json
+mne_bids/tests/data/tiny_bids/sub-01/ses-eeg/sub-01_ses-eeg_rec-prelim.edf

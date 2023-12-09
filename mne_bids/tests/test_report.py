@@ -13,6 +13,11 @@ from mne_bids import BIDSPath, make_report
 from mne_bids.write import write_raw_bids
 from mne_bids.config import BIDS_VERSION
 
+from mne_bids.report._report import (
+    _range_str,
+    _summarize_participant_hand,
+    _summarize_participant_sex,
+)
 
 subject_id = "01"
 session_id = "01"
@@ -32,6 +37,64 @@ warning_str = dict(
     channel_unit_changed="ignore:The unit for chann*.:RuntimeWarning:mne",
 )
 
+def test_summarize_participant_sex():
+    # Test case 1: All sexes are unknown
+    result = _summarize_participant_sex(["n/a", "n/a", "n/a"])
+    assert result == "sex were all unknown"
+
+    # Test case 2: Equal number of males and females
+    result = _summarize_participant_sex(["M", "F", "M", "F"])
+    assert result == "comprised of 2 male and 2 female participants"
+
+    # Test case 3: Only males
+    result = _summarize_participant_sex(["M", "M", "M"])
+    assert result == "comprised of 3 male and 0 female participants"
+
+    # Test case 4: Only females
+    result = _summarize_participant_sex(["F", "F"])
+    assert result == "comprised of 0 male and 2 female participants"
+
+    # Test case 5: Mix of sexes
+    result = _summarize_participant_sex(["M", "F", "n/a", "M", "n/a", "F"])
+    assert result == "comprised of 2 male and 2 female participants"
+
+    # Test case 6: Empty list
+    result = _summarize_participant_sex([])
+    assert result == "sex were all unknown"
+
+def test_range_str():
+    # Test case 1: All values are valid
+    result = _range_str(10, 20, 15, 2, 0, "years")
+    expected_result = "ages ranged from 10 to 20 (mean = 15, std = 2)"
+    assert result == expected_result
+
+    # Test case 2: Minval is "n/a"
+    result = _range_str("n/a", 20, 15, 2, 0, "years")
+    expected_result = "ages all unknown"
+    assert result == expected_result
+
+    # Test case 3: n_unknown is greater than 0
+    result = _range_str(10, 20, 15, 2, 5, "years")
+    expected_result = "ages ranged from 10 to 20 (mean = 15, std = 2; 5 with unknown years)"
+    assert result == expected_result
+
+def test_summarize_participant_hand():
+    # Test case 1: All hands are unknown
+    hands_case1 = ["n/a", "n/a", "n/a"]
+    result_case1 = _summarize_participant_hand(hands_case1)
+    assert result_case1 == "handedness were all unknown"
+
+    # Test case 2: Mixed hands
+    hands_case2 = ["R", "L", "A", "R", "A"]
+    result_case2 = _summarize_participant_hand(hands_case2)
+    expected_result_case2 = "comprised of 2 right hand, 1 left hand and 2 ambidextrous"
+    assert result_case2 == expected_result_case2
+
+    # Test case 3: All left hands
+    hands_case3 = ["L", "L", "L"]
+    result_case3 = _summarize_participant_hand(hands_case3)
+    expected_result_case3 = "comprised of 0 right hand, 3 left hand and 0 ambidextrous"
+    assert result_case3 == expected_result_case3
 
 @pytest.mark.filterwarnings(warning_str["channel_unit_changed"])
 @testing.requires_testing_data
